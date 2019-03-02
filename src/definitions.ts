@@ -11,5 +11,3 @@ export const COLOURS = {
     blue: 0x14213D,
     black: 0x000000
 };
-
-
