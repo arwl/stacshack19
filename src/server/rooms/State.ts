@@ -2,8 +2,8 @@ import * as nanoid from "nanoid";
 import { Entity } from "./Entity";
 import { Item } from "./Item";
 
-const WORLD_SIZE = 2000;
 const DEFAULT_PLAYER_RADIUS = 10;
+const WORLD_SIZE = 4096 - DEFAULT_PLAYER_RADIUS;
 
 export class State {
     width = WORLD_SIZE;
@@ -12,10 +12,10 @@ export class State {
     entities: { [id: string]: Entity } = {};
 
     constructor () {
-        // create some item entities
-        for (let i=0; i<100; i++) {
-            this.createItem();
-        }
+        // // create some item entities
+        // for (let i=0; i<100; i++) {
+        //     this.createItem();
+        // }
     }
 
     createItem () {

@@ -12,7 +12,7 @@ module.exports = function (options) {
         ],
         module: {
             rules: [
-                { test: /\.tsx?$/, use: 'ts-loader?configFile=tsconfig-client.json', exclude: /node_modules/ },
+                { test: /\.tsx?$/, use: 'ts-loader?configFile=src/client/tsconfig.json', exclude: /node_modules/ },
                 { test: /\.(png|woff|woff2|eot|ttf|svg)$/, use: 'file-loader?limit=1024&name=[path][name].[ext]' },
             ]
         },

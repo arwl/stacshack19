@@ -11,6 +11,6 @@
     "sourceMap": false
   },
   "include": [
-    "src/client/**/*.ts"
+    "./*.ts"
   ]
 }

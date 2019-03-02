@@ -2,9 +2,10 @@ import * as PIXI from "pixi.js";
 import * as Viewport from "pixi-viewport";
 import * as Keyboard from "pixi.js-keyboard";
 import * as Mouse from "pixi.js-mouse";
+import {UP, DOWN, LEFT, RIGHT, NONE} from "../definitions";
 import { Client, DataChange } from "colyseus.js";
 
-const SOCKET = "ws://localhost:8080"
+const SOCKET = "ws://pc2-079-l:8080";
 export const lerp = (a: number, b: number, t: number) => (b - a) * t + a
 
 // Width/Height of the map
@@ -22,7 +23,7 @@ export class App extends PIXI.Application {
 
     _axisListener: any;
     _interpolation: boolean;
-    state: any;
+    state: Function;
 
     constructor() {
         super({
@@ -50,12 +51,12 @@ export class App extends PIXI.Application {
         // this.interpolation = false;
 
         // Let the server know about mouse movements
-        this.vp.on("mousemove", (e) => {
-            if (this.currentPlayerEnt) {
-                const point = this.vp.toLocal(e.data.global);
-                this.room.send(['mouse', {x: point.x, y: point.y}]);
-            }
-        });
+        // this.vp.on("mousemove", (e) => {
+        //     if (this.currentPlayerEnt) {
+        //         const point = this.vp.toLocal(e.data.global);
+        //         this.room.send(['mouse', {x: point.x, y: point.y}]);
+        //     }
+        // });
 
         this.interpolation();
 
@@ -107,21 +108,37 @@ export class App extends PIXI.Application {
             this.entities[id].y = lerp(this.entities[id].y, this.room.state.entities[id].y, 0.2);
         }
         requestAnimationFrame(this.loop.bind(this));
-        this.state();
+
+        if (this.state) {
+            this.state();
+        }
+
         Keyboard.update();
         Mouse.update();
     }
 
+    sendKeyboard(command: number) {
+        if (this.currentPlayerEnt) {
+            this.room.send(['KEYBOARD', command]);
+        }
+    }
+
     overworld() {
-        const speed = 5;
+        let direction: number = NONE;
+
         if (Keyboard.isKeyDown('ArrowLeft', 'KeyA'))
-            this.currentPlayerEnt.x -= speed;
+            direction+=LEFT;
         if (Keyboard.isKeyDown('ArrowRight', 'KeyD'))
-            this.currentPlayerEnt.x += speed;
+            direction+=RIGHT;
         if (Keyboard.isKeyDown('ArrowUp', 'KeyW'))
-            this.currentPlayerEnt.y -= speed;
+            direction+=UP;
         if (Keyboard.isKeyDown('ArrowDown', 'KeyS'))
-            this.currentPlayerEnt.y += speed;
+            direction+=DOWN;
+
+
+        return this.sendKeyboard(direction)
+
+
     }
 
     battle() {

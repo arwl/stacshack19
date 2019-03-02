@@ -1,6 +1,7 @@
-import { Room, Client } from "colyseus";
-import { Entity } from "./Entity";
-import { State } from "./State";
+import {Room, Client} from "colyseus";
+import {DOWN, LEFT, NONE, RIGHT, UP} from "../../definitions";
+import {Entity} from "./Entity";
+import {State} from "./State";
 
 export class ArenaRoom extends Room {
     onInit() {
@@ -24,10 +25,29 @@ export class ArenaRoom extends Room {
         const [command, data] = message;
 
         // change angle
-        if (command === "mouse") {
-            const dst = Entity.distance(entity, data as Entity);
-            entity.speed = (dst < 20) ? 0 : Math.min(dst / 10, 6);
-            entity.angle = Math.atan2(entity.y - data.y, entity.x - data.x);
+        if (command === "KEYBOARD") {
+            let direction = new Entity(0, 0, 0);
+
+            if (data & UP) {
+                direction.y += 1;
+            }
+            if (data & DOWN) {
+                direction.y -= 1;
+            }
+            if (data & LEFT) {
+                direction.x+=1;
+            }
+            if (data & RIGHT) {
+                direction.x-=1;
+            }
+
+            if (data === NONE) {
+                entity.speed*=0.9;
+                return;
+            }
+
+            entity.speed = 5;
+            entity.angle = Math.atan2(direction.y, direction.x);
         }
     }
 
@@ -35,7 +55,9 @@ export class ArenaRoom extends Room {
         const entity = this.state.entities[client.sessionId];
 
         // entity may be already dead.
-        if (entity) { entity.dead = true; }
+        if (entity) {
+            entity.dead = true;
+        }
     }
 
 }
