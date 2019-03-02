@@ -34,6 +34,8 @@
     "@colyseus/schema": "^0.1.5",
     "colyseus": "^0.9.26",
     "express": "^4.16.4",
-    "express-basic-auth": "^1.1.6"
+    "express-basic-auth": "^1.1.6",
+    "pixi.js-keyboard": "^1.0.9",
+    "pixi.js-mouse": "^1.0.4"
   }
 }
