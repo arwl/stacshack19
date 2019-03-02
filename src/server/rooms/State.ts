@@ -1,5 +1,6 @@
 import * as nanoid from "nanoid";
 import { Entity } from "./Entity";
+import { Item } from "./Item";
 
 const WORLD_SIZE = 2000;
 const DEFAULT_PLAYER_RADIUS = 10;
@@ -11,15 +12,15 @@ export class State {
     entities: { [id: string]: Entity } = {};
 
     constructor () {
-        // create some food entities
+        // create some item entities
         for (let i=0; i<100; i++) {
-            this.createFood();
+            this.createItem();
         }
     }
 
-    createFood () {
-        const food = new Entity(Math.random() * this.width, Math.random() * this.height, 2);
-        this.entities[nanoid()] = food;
+    createItem () {
+        const itemDrop = new Item(Math.random() * this.width, Math.random() * this.height);
+        this.entities[nanoid()] = itemDrop;
     }
 
     createPlayer (sessionId: string) {
@@ -53,7 +54,7 @@ export class State {
 
                         // create a replacement food
                         if (collideTestEntity.radius < DEFAULT_PLAYER_RADIUS) {
-                            this.createFood();
+                            this.createItem();
                         }
                     }
                 }
