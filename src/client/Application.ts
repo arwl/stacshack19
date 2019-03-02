@@ -27,8 +27,8 @@ export class App extends PIXI.Application {
 
     constructor() {
         super({
-            width: window.innerWidth,
-            height: window.innerHeight
+            width: window.innerWidth * 0.9,
+            height: window.innerHeight * 0.9
         });
 
         this.vp = new Viewport({

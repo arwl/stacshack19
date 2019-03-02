@@ -9,6 +9,7 @@ export class Player extends Entity{
     inventory: Item[];
     inBattle: boolean;
 
+
     constructor(x: number, y:number, name: string){
         super(x,y,PLAYER_RADIUS);
         this.name = name;
