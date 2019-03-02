@@ -5,6 +5,7 @@ import {HardRock} from "./items/HardRock";
 import {SharperScissors} from "./items/SharperScissors";
 import {SharpScissors} from "./items/SharpScissors";
 import {ThickPaper} from "./items/ThickPaper";
+import {Player} from "./Player";
 
 const DEFAULT_PLAYER_RADIUS = 10;
 const WORLD_SIZE = 4096 - DEFAULT_PLAYER_RADIUS;
@@ -35,14 +36,14 @@ export class State {
 
 
     createItem() {
-        this.entities[nanoid()] = State.potentialItems(Math.random() * WORLD_SIZE, Math.random() * WORLD_SIZE, Math.random() * 3);
+        this.entities[nanoid()] = State.potentialItems(Math.random() * WORLD_SIZE, Math.random() * WORLD_SIZE, Math.floor(Math.random() * 3.0 ));
     }
 
     createPlayer(sessionId: string) {
-        this.entities[sessionId] = new Entity(
+        this.entities[sessionId] = new Player(
             Math.random() * this.width,
             Math.random() * this.height,
-            DEFAULT_PLAYER_RADIUS
+            "yeet"
         );
     }
 
@@ -64,15 +65,9 @@ export class State {
                         continue;
                     }
 
-                    if (Entity.distance(entity, collideTestEntity) < entity.radius) {
-                        entity.radius += collideTestEntity.radius / 5;
+                    if (Entity.distance(entity, collideTestEntity) < Math.min(collideTestEntity.radius,entity.radius)) {
                         collideTestEntity.dead = true;
                         deadEntities.push(collideSessionId);
-
-                        // create a replacement food
-                        if (collideTestEntity.radius < DEFAULT_PLAYER_RADIUS) {
-                            this.createItem();
-                        }
                     }
                 }
             }

@@ -93,6 +93,16 @@ export class App extends PIXI.Application {
                 delete this.entities[change.path.id]
             }
         });
+        // this.room.listen("entities/:id/radius", (change: DataChange) => {
+        //     const graphics: PIXI.Graphics = this.entities[change.path.id];
+        //     // let colour = graphics.fill.color;
+        //     graphics.clear();
+        //     graphics.lineStyle(0);
+        //     // graphics.beginFill(colour);
+        //     graphics.drawCircle(0, 0, change.value);
+        //     graphics.endFill();
+        // });
+
     }
 
     interpolation() {
@@ -128,20 +138,18 @@ export class App extends PIXI.Application {
         let direction: number = NONE;
 
         if (Keyboard.isKeyDown('ArrowLeft', 'KeyA'))
-            direction+=LEFT;
+            direction += LEFT;
         if (Keyboard.isKeyDown('ArrowRight', 'KeyD'))
-            direction+=RIGHT;
+            direction += RIGHT;
         if (Keyboard.isKeyDown('ArrowUp', 'KeyW'))
-            direction+=UP;
+            direction += UP;
         if (Keyboard.isKeyDown('ArrowDown', 'KeyS'))
-            direction+=DOWN;
+            direction += DOWN;
 
 
         return this.sendKeyboard(direction)
 
-
     }
-
     battle() {
         console.log("You're in a battle friendo");
     }

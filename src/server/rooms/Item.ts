@@ -16,6 +16,6 @@ export class Item extends Entity {
         super(x, y, Item.ITEM_RADIUS);
         this.stats = stats;
         this.name = name;
-        this.colour = colour;
+        super.colour = colour;
     }
 }

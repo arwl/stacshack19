@@ -4,7 +4,7 @@ import { Item } from "./Item";
 const DEFAULT_HEALTH = 20;
 const PLAYER_RADIUS = 20;
 
-export class Player extends Entity{
+export class Player extends Entity {
     health: number;
     name: string;
     inventory: Item[];
@@ -16,7 +16,7 @@ export class Player extends Entity{
         this.name = name;
         this.health = DEFAULT_HEALTH;
         this.inventory = [];
-        this.colour = COLOURS.blue;
+        super.colour = COLOURS.blue;
     }
 
     damage(hit: number ,item: Item){
