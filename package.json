@@ -6,7 +6,7 @@
   "scripts": {
     "heroku-postbuild": "tsc && webpack",
     "start": "node ./lib/index.js",
-    "dev": "nodemon",
+    "dev": "ts-node ./src/server/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Endel Dreyer",
