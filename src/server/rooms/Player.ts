@@ -27,6 +27,15 @@ export class Player extends Entity {
         this.health  -= hit;
     }
 
+    additem(item: Item) {
+        if (this.inventory.length >= 3) {
+            return false;
+        } else {
+            this.inventory.push(item);
+            return true;
+        }
+    }
+
     useitem(){
 
     }

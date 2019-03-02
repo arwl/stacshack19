@@ -85,9 +85,10 @@ export class State {
                             (this.entities[collideSessionId] as Player).inBattle = sessionId;
                             (this.entities[sessionId] as Player).inBattle = collideSessionId;
                         } else if (collideTestEntity instanceof Item) {
-
-                            collideTestEntity.dead = true;
-                            deadEntities.push(collideSessionId);
+                            if (entity.additem(collideTestEntity)) {
+                                collideTestEntity.dead = true;
+                                deadEntities.push(collideSessionId);
+                            }
                         }
                     }
 
