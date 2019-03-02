@@ -11,20 +11,13 @@ const DEFAULT_PLAYER_RADIUS = 10;
 const WORLD_SIZE = 4096 - DEFAULT_PLAYER_RADIUS;
 
 export class State {
-    private static currentState = null;
 
-    public static getCurrentState() {
-        if (!this.currentState) {
-            this.currentState = new State();
-        }
-        return this.currentState;
-    }
     width = WORLD_SIZE;
     height = WORLD_SIZE;
 
     entities: Map<string, Entity> = new Map();
 
-    private constructor() {
+    constructor() {
         // create some item entities
         for (let i = 0; i < 100; i++) {
             this.createItem();
@@ -82,8 +75,11 @@ export class State {
                     if (colliding) {
                         if (collideTestEntity instanceof Player) {
                             // const idToStartBattle = sessionId.localeCompare(collideSessionId) > 0 ? sessionId : collideSessionId;
-                            (this.entities[collideSessionId] as Player).inBattle = sessionId;
-                            (this.entities[sessionId] as Player).inBattle = collideSessionId;
+                            if (collideTestEntity.inBattle && entity.inBattle) {
+                                collideTestEntity.inBattle = sessionId;
+                                entity.inBattle = collideSessionId;
+                            }
+
                         } else if (collideTestEntity instanceof Item) {
                             if (entity.additem(collideTestEntity)) {
                                 collideTestEntity.dead = true;

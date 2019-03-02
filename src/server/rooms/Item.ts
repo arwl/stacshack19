@@ -13,9 +13,8 @@ export class Item extends Entity {
     stats: Stats;
 
     protected constructor(x: number, y: number, colour: number, name: string, stats: Stats) {
-        super(x, y, Item.ITEM_RADIUS);
+        super(x, y, Item.ITEM_RADIUS, colour);
         this.stats = stats;
         this.name = name;
-        super.colour = colour;
     }
 }

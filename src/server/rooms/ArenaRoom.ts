@@ -5,7 +5,7 @@ import {State} from "./State";
 
 export class ArenaRoom extends Room {
     onInit() {
-        this.setState(State.getCurrentState());
+        this.setState(new State());
         this.setSimulationInterval(() => this.state.update());
     }
 
@@ -26,7 +26,7 @@ export class ArenaRoom extends Room {
 
         // change angle
         if (command === "KEYBOARD") {
-            let direction = new Entity(0, 0, 0);
+            let direction = new Entity(0, 0, 0, 0);
 
             if (data & UP) {
                 direction.y += 1;
@@ -51,9 +51,6 @@ export class ArenaRoom extends Room {
             return;
         }
 
-        if (command === "ATTACK") {
-
-        }
     }
 
     onLeave(client: Client) {

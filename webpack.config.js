@@ -2,6 +2,8 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+
 
 module.exports = function (options) {
     return {
@@ -25,7 +27,12 @@ module.exports = function (options) {
 
             // extract styles from bundle into a separate file
             new ExtractTextPlugin('index.css'),
+
+            new CopyPlugin([
+                { from: 'resources', to: '.' },
+            ]),
         ],
+        externals: ['tls', 'net', 'hiredis', 'cluster'],
         resolve: {
             extensions: ['.tsx', '.ts', '.js']
         },

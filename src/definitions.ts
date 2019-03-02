@@ -4,6 +4,10 @@ export const LEFT: number = 4;
 export const RIGHT: number = 8;
 export const NONE: number = 0;
 
+export enum MOVES {
+    ROCK,PAPER,SCISSORS
+}
+
 export const COLOURS = {
     magenta: 0x6A0136,
     turquoise: 0x1C7C54,

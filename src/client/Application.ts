@@ -2,8 +2,11 @@ import * as PIXI from "pixi.js";
 import * as Viewport from "pixi-viewport";
 import * as Keyboard from "pixi.js-keyboard";
 import * as Mouse from "pixi.js-mouse";
-import {UP, DOWN, LEFT, RIGHT, NONE} from "../definitions";
-import { Client, DataChange } from "colyseus.js";
+import {UP, DOWN, LEFT, RIGHT, NONE, MOVES} from "../definitions";
+import {Client, DataChange} from "colyseus.js";
+import {Entity} from "../server/rooms/Entity";
+import {Player} from "../server/rooms/Player";
+import {resources, Sprite} from "pixi.js";
 
 const SOCKET = "ws://pc2-079-l:8080";
 export const lerp = (a: number, b: number, t: number) => (b - a) * t + a
@@ -14,7 +17,7 @@ const MAP_SIZE = 4096;
 export class App extends PIXI.Application {
 
     entities: { [id: string]: PIXI.Graphics } = {};
-    currentPlayerEnt: PIXI.Graphics;
+    currentPlayerEnt: PIXI.Container;
 
     client = new Client(SOCKET);
     room = this.client.join("arena");
@@ -31,6 +34,32 @@ export class App extends PIXI.Application {
             height: window.innerHeight * 0.9
         });
 
+
+        this.loader.add(
+            [
+                "Sprites/fist.png",
+                "Sprites/paper.png",
+                "Sprites/rock.png",
+                "Sprites/scissors.png",
+                "Tiles/cityTile.png",
+                "Tiles/grassTile.png",
+                "Tiles/sandTile.png",
+                "UI/enInv.png",
+                "UI/playerInv.png"
+            ]
+        ).load(()=> {
+
+            this.initializeArena();
+
+            this.interpolation();
+
+        })
+
+
+    }
+
+    initializeArena(): any {
+        this.entities = {};
         this.vp = new Viewport({
             screenWidth: window.innerWidth,
             screenHeight: window.innerHeight,
@@ -45,30 +74,23 @@ export class App extends PIXI.Application {
         this.vp.addChild(bounds);
 
         // Add vp to stage
-        this.stage.addChild(this.vp);
-
-        this.initialize();
-        // this.interpolation = false;
-
-        // Let the server know about mouse movements
-        // this.vp.on("mousemove", (e) => {
-        //     if (this.currentPlayerEnt) {
-        //         const point = this.vp.toLocal(e.data.global);
-        //         this.room.send(['mouse', {x: point.x, y: point.y}]);
-        //     }
-        // });
-
-        this.interpolation();
-
-    }
-
-    initialize(): any {
-        // throw new Error("Method not implemented.");
+        this.stage.addChild(this.vp)
         this.room.listen("entities/:id", (change: DataChange) => {
             if (change.operation === "add") {
                 // const colour = 0x87cefa;
-                const colour = change.value.colour;
+                const entity: Entity = change.value;
+                if (entity instanceof Player) {
+                    const image = new Sprite(resources["Sprites/fist.png"].texture);
+                    image.position.set(change.value.x, change.value.y);
+                    this.vp.addChild(image);
+                    if (change.path.id === this.room.sessionId) {
+                        this.currentPlayerEnt = image;
+                        this.vp.follow(this.currentPlayerEnt);
+                    }
+                    return
+                }
                 const graphics = new PIXI.Graphics();
+                const colour = change.value.colour;
                 graphics.lineStyle(0);
                 graphics.beginFill(colour);
                 graphics.drawCircle(0, 0, change.value.radius);
@@ -82,10 +104,6 @@ export class App extends PIXI.Application {
 
                 this.state = this.overworld;
 
-                if (change.path.id === this.room.sessionId) {
-                    this.currentPlayerEnt = graphics;
-                    this.vp.follow(this.currentPlayerEnt);
-                }
 
             } else if (change.operation === "remove") {
                 this.vp.removeChild(this.entities[change.path.id]);
@@ -93,17 +111,75 @@ export class App extends PIXI.Application {
                 delete this.entities[change.path.id]
             }
         });
-        // this.room.listen("entities/:id/radius", (change: DataChange) => {
-        //     const graphics: PIXI.Graphics = this.entities[change.path.id];
-        //     // let colour = graphics.fill.color;
-        //     graphics.clear();
-        //     graphics.lineStyle(0);
-        //     // graphics.beginFill(colour);
-        //     graphics.drawCircle(0, 0, change.value);
-        //     graphics.endFill();
-        // });
+
+        this.room.listen("entities/:id/inBattle", (change: DataChange) => {
+            if (change.value !== "no") {
+                if (this.room.name === "arena") {
+                    this.room = this.client.join("battle");
+                    this.state = this.battle;
+                }
+            } else {
+                if (this.room.name === "battle") {
+                    this.room = this.client.join("arena");
+                    this.state = this.overworld;
+                }
+            }
+        });
+    }
+
+    playerFront: Player;
+    playerBack: Player;
+
+    initializeBattle(): any {
+
+        // this.entities = {};
+        // // const colour = 0x87cefa;
+        // const colour = 0;
+        // const graphics = new PIXI.Sprite(resources.);
+        // graphics.lineStyle(0);
+        // graphics.beginFill(colour);
+        // graphics.drawCircle(0, 0, change.value.radius);
+        // graphics.endFill();
+        //
+        // graphics.x = change.value.x;
+        // graphics.y = change.value.y;
+        // this.vp.addChild(graphics);
+        //
+        // this.entities[change.path.id] = graphics;
+
+        this.vp = new Viewport({
+            screenWidth: window.innerWidth,
+            screenHeight: window.innerHeight,
+            worldWidth: window.innerWidth,
+            worldHeight: window.innerHeight
+        });
+
+        // Add vp to stage
+        this.stage.addChild(this.vp);
+
+        this.room.listen("player1", (change: DataChange) => {
+            if (!change.previousValue) {
+                if ((change.value as Player).inBattle !== this.room.sessionId) {
+                    this.playerBack = change.value;
+                } else {
+                    this.playerFront = change.value;
+                }
+
+            }
+        });
+        this.room.listen("player2", (change: DataChange) => {
+            if (!change.previousValue) {
+                if ((change.value as Player).inBattle !== this.room.sessionId) {
+                    this.playerBack = change.value;
+                } else {
+                    this.playerFront = change.value;
+                }
+            }
+        });
+
 
     }
+
 
     interpolation() {
         this._interpolation = true;
@@ -128,7 +204,7 @@ export class App extends PIXI.Application {
         Mouse.update();
     }
 
-    sendKeyboard(command: number) {
+    sendKeyboard(command: any) {
         if (this.currentPlayerEnt) {
             this.room.send(['KEYBOARD', command]);
         }
@@ -146,12 +222,18 @@ export class App extends PIXI.Application {
         if (Keyboard.isKeyDown('ArrowDown', 'KeyS'))
             direction += DOWN;
 
-
         return this.sendKeyboard(direction)
 
     }
+
     battle() {
-        console.log("You're in a battle friendo");
+        if (Keyboard.isKeyDown('KeyR'))
+            return this.sendKeyboard(MOVES.ROCK);
+        if (Keyboard.isKeyDown('KeyP'))
+            return this.sendKeyboard(MOVES.PAPER);
+        if (Keyboard.isKeyDown('KeyS'))
+            return this.sendKeyboard(MOVES.SCISSORS);
+
     }
 
 }
