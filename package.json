@@ -1,0 +1,33 @@
+{
+  "name": "stacshack19",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@colyseus/monitor": "^0.1.7",
+    "colyseus": "^0.9.28",
+    "colyseus.js": "^0.9.16",
+    "express": "^4.14.0",
+    "nodemon": "^1.11.0",
+    "serve-index": "^1.8.0",
+    "superagent": "^3.8.1"
+  },
+  "devDependencies": {
+    "browserify": "^14.4.0",
+    "ts-node": "^5.0.1",
+    "typescript": "^2.7.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arwl/stacshack19.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arwl/stacshack19/issues"
+  },
+  "homepage": "https://github.com/arwl/stacshack19#readme"
+}
