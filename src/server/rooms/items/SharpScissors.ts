@@ -7,6 +7,6 @@ export class SharpScissors extends Item {
     radius: number = Item.ITEM_RADIUS;
 
     constructor(x: number, y: number) {
-        super(x,y, COLOURS.red, "Sharp Scissors", {scissors: 1});
+        super(x,y, COLOURS.magenta, "Sharp Scissors", {scissors: 1});
     }
 }

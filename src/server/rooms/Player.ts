@@ -1,3 +1,4 @@
+import {COLOURS} from "../../definitions";
 import { Entity } from "./Entity";
 import { Item } from "./Item";
 const DEFAULT_HEALTH = 20;
@@ -8,6 +9,7 @@ export class Player extends Entity{
     name: string;
     inventory: Item[];
     inBattle: boolean;
+    colour = COLOURS.blue;
 
 
     constructor(x: number, y:number, name: string){

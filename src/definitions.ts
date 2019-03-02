@@ -5,9 +5,11 @@ export const RIGHT: number = 8;
 export const NONE: number = 0;
 
 export const COLOURS = {
-    red: 0xFF0000,
-    green: 0x00FF00,
-    blue: 0x0000FF
+    magenta: 0x6A0136,
+    turquoise: 0x1C7C54,
+    yellow: 0xFCA311,
+    blue: 0x14213D,
+    black: 0x000000
 };
 
 
