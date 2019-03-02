@@ -7,6 +7,6 @@ export class ThickPaper extends Item {
     radius: number = Item.ITEM_RADIUS;
 
     constructor(x: number, y: number) {
-        super(x,y, COLOURS.blue, "Thick Paper", {paper: 1});
+        super(x,y, COLOURS.yellow, "Thick Paper", {paper: 1});
     }
 }

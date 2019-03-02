@@ -7,6 +7,6 @@ export class HardRock extends Item {
     radius: number = Item.ITEM_RADIUS;
 
     constructor(x: number, y: number) {
-        super(x,y, COLOURS.green, "Hard Rock", {rock: 1});
+        super(x,y, COLOURS.turquoise, "Hard Rock", {rock: 1});
     }
 }

@@ -48,6 +48,11 @@ export class ArenaRoom extends Room {
 
             entity.speed = 5;
             entity.angle = Math.atan2(direction.y, direction.x);
+            return;
+        }
+
+        if (command === "ATTACK") {
+
         }
     }
 
