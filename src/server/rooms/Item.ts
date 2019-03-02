@@ -8,7 +8,6 @@ export interface Stats {
 
 export class Item extends Entity {
     static ITEM_RADIUS: number = 10;
-    colour: number;
     name: string;
     damage: number;
     stats: Stats;

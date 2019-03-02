@@ -66,7 +66,8 @@ export class App extends PIXI.Application {
         // throw new Error("Method not implemented.");
         this.room.listen("entities/:id", (change: DataChange) => {
             if (change.operation === "add") {
-                const colour = 0x87cefa;
+                // const colour = 0x87cefa;
+                const colour = change.value.colour;
                 const graphics = new PIXI.Graphics();
                 graphics.lineStyle(0);
                 graphics.beginFill(colour);

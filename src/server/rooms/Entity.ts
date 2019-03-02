@@ -4,6 +4,7 @@ export class Entity {
     x: number;
     y: number;
     radius: number;
+    colour: number;
 
     @nosync dead: boolean = false;
     @nosync angle: number = 0;

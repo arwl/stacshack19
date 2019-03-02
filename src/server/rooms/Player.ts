@@ -9,14 +9,14 @@ export class Player extends Entity{
     name: string;
     inventory: Item[];
     inBattle: boolean;
-    colour = COLOURS.blue;
-
-
+    
+    
     constructor(x: number, y:number, name: string){
         super(x,y,PLAYER_RADIUS);
         this.name = name;
         this.health = DEFAULT_HEALTH;
         this.inventory = [];
+        this.colour = COLOURS.blue;
     }
 
     damage(hit: number ,item: Item){
