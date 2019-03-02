@@ -11,12 +11,20 @@ const DEFAULT_PLAYER_RADIUS = 10;
 const WORLD_SIZE = 4096 - DEFAULT_PLAYER_RADIUS;
 
 export class State {
+    private static currentState = null;
+
+    public static getCurrentState() {
+        if (!this.currentState) {
+            this.currentState = new State();
+        }
+        return this.currentState;
+    }
     width = WORLD_SIZE;
     height = WORLD_SIZE;
 
-    entities: { [id: string]: Entity } = {};
+    entities: Map<string, Entity> = new Map();
 
-    constructor() {
+    private constructor() {
         // create some item entities
         for (let i = 0; i < 100; i++) {
             this.createItem();
@@ -36,7 +44,7 @@ export class State {
 
 
     createItem() {
-        this.entities[nanoid()] = State.potentialItems(Math.random() * WORLD_SIZE, Math.random() * WORLD_SIZE, Math.floor(Math.random() * 3.0 ));
+        this.entities[nanoid()] = State.potentialItems(Math.random() * WORLD_SIZE, Math.random() * WORLD_SIZE, Math.floor(Math.random() * 3.0));
     }
 
     createPlayer(sessionId: string) {
@@ -56,19 +64,34 @@ export class State {
                 deadEntities.push(sessionId);
             }
 
-            if (entity.radius >= DEFAULT_PLAYER_RADIUS) {
+            if (entity instanceof Player) {
                 for (const collideSessionId in this.entities) {
-                    const collideTestEntity = this.entities[collideSessionId]
+                    const collideTestEntity = this.entities[collideSessionId];
 
                     // prevent collision with itself
                     if (collideTestEntity === entity) {
                         continue;
                     }
-
-                    if (Entity.distance(entity, collideTestEntity) < Math.min(collideTestEntity.radius,entity.radius)) {
-                        collideTestEntity.dead = true;
-                        deadEntities.push(collideSessionId);
+                    // check colliding
+                    let colliding = false;
+                    if (Entity.distance(entity, collideTestEntity) < entity.radius) {
+                        colliding = true;
                     }
+
+
+                    if (colliding) {
+                        if (collideTestEntity instanceof Player) {
+                            // const idToStartBattle = sessionId.localeCompare(collideSessionId) > 0 ? sessionId : collideSessionId;
+                            (this.entities[collideSessionId] as Player).inBattle = sessionId;
+                            (this.entities[sessionId] as Player).inBattle = collideSessionId;
+                        } else if (collideTestEntity instanceof Item) {
+
+                            collideTestEntity.dead = true;
+                            deadEntities.push(collideSessionId);
+                        }
+                    }
+
+
                 }
             }
 

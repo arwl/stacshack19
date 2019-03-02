@@ -8,7 +8,7 @@ export class Player extends Entity {
     health: number;
     name: string;
     inventory: Item[];
-    inBattle: boolean;
+    inBattle: string;
     
     
     constructor(x: number, y:number, name: string){
