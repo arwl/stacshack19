@@ -41,8 +41,6 @@ export class Battle extends Room {
             if (battle.player1 && battle.player2) {
                 console.log("both users connected");
             }
-            // lock this room for new users
-            this.lock();
         }
     }
 
@@ -80,9 +78,9 @@ export class Battle extends Room {
 
     private end() {
         this.getBattle().player1.inBattle = "no";
-        this.getBattle().player1.x += 100;
+        this.getBattle().player1.x += 10;
         this.getBattle().player2.inBattle = "no";
-        this.getBattle().player2.x -= 100;
+        this.getBattle().player2.x -= 10;
     }
 
     onInit() {
@@ -164,6 +162,7 @@ function resolveBattle() {
     }
 
     if (this.player1Move === MOVES.ROCK) {
+        console.log("p1 = rock");
         if (this.player2Move === MOVES.PAPER) {
             this.winner = this.player2;
             this.loser = this.player1;
