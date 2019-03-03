@@ -29,10 +29,9 @@ module.exports = function (options) {
             new ExtractTextPlugin('index.css'),
 
             new CopyPlugin([
-                { from: 'resources', to: '.' },
+                { from: 'resources', to: 'resources' },
             ]),
         ],
-        externals: ['tls', 'net', 'hiredis', 'cluster'],
         resolve: {
             extensions: ['.tsx', '.ts', '.js']
         },
