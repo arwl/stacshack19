@@ -2,11 +2,13 @@ import * as PIXI from "pixi.js";
 import * as Viewport from "pixi-viewport";
 import * as Keyboard from "pixi.js-keyboard";
 import * as Mouse from "pixi.js-mouse";
+import {Data} from "ws";
 import {UP, DOWN, LEFT, RIGHT, NONE, MOVES} from "../definitions";
 import {Client, DataChange} from "colyseus.js";
 import Sprite = PIXI.Sprite;
 import Texture = PIXI.Texture;
 import {resources} from "pixi.js";
+import TextStyle = PIXI.TextStyle;
 
 const SOCKET = "ws://pc2-079-l:8080";
 export const lerp = (a: number, b: number, t: number) => (b - a) * t + a
@@ -57,6 +59,19 @@ export class App extends PIXI.Application {
             worldHeight: MAP_SIZE
         });
         this.entities = {};
+        this.room.listen("entities/" + this.room.sessionId, (change: DataChange) => {
+            this.items.forEach((item) => this.vp.removeChild(item));
+            this.items = []
+            this.player = change.value;
+            let x = 60;
+            let y = window.innerHeight - 240;
+            let width = 220;
+
+            for (let i = 0; i < this.player.inventory.length; i++) {
+                console.log("rendering current user's item");
+                this.renderItem(this.player.inventory[i].stats, x + i * width, y, 1.2);
+            }
+        })
         this.room.listen("entities/:id", (change: DataChange) => {
             if (this.room.name === "arena") {
                 this.lastRoomId = this.room.sessionId;
@@ -67,28 +82,32 @@ export class App extends PIXI.Application {
                     let image: Sprite;
 
                     if (change.value.inBattle) {
-                        image = this.getImage("resources/Sprites/fist.png");
 
                         let x = 60;
                         let y = window.innerHeight - 240;
                         let width = 220;
 
-                        if (change.path.id === this.lastRoomId) {
+
+                        if (change.path.id === this.room.sessionId) {
+                            image = this.getImage("resources/Sprites/fist.png");
+                            console.log("following");
+                            this.currentPlayerEnt = image;
+                            this.vp.follow(this.currentPlayerEnt);
                             console.log("Found current user");
                             this.player = change.value;
                             for (let i = 0; i < this.player.inventory.length; i++) {
                                 console.log("rendering current user's item");
                                 this.renderItem(this.player.inventory[i].stats, x + i * width, y, 1.2);
                             }
-                        }
-
-                        if (change.path.id === this.room.sessionId) {
-                            console.log("following");
-                            this.currentPlayerEnt = image;
-                            this.vp.follow(this.currentPlayerEnt);
-                            this.player = change.path.value;
+                            const text = new PIXI.Text(this.player.health + " HP");
+                            text.scale.x = 20;
+                            text.scale.y = 20;
+                            text.position.x = x - 50;
+                            text.position.y = y - 50;
+                            this.currentPlayerEnt.addChild(text);
                         } else {
-                            this.enemy = change.path.value;
+                            image = this.getImage("resources/Sprites/enFist.png");
+
                         }
 
                     } else if (change.value.stats) {
@@ -160,21 +179,24 @@ export class App extends PIXI.Application {
         this.vp.addChild(bounds);
 
         this.playerFront = this.getImage("resources/UI/enInv.png");
-        this.playerBack = this.getImage("resources/UI/playerInv.png");
         this.playerTexture = this.getImage("resources/Sprites/fist.png");
-        this.enemyTexture = this.getImage("resources/Sprites/fist.png");
+        this.enemyTexture = this.getImage("resources/Sprites/enFist.png");
 
         this.playerFront.position.x = 40;
         this.playerFront.position.y = window.innerHeight - 250;
 
-        this.playerBack.position.x = window.innerWidth - 675 - 40;
-        this.playerBack.position.y = 40;
-
         this.playerTexture.position.x = window.innerWidth - 675 - 40 + 100;
         this.playerTexture.position.y = window.innerHeight - 250;
 
-        this.enemyTexture.position.x = 40;
+        this.enemyTexture.position.x = window.innerWidth/2 - 50;
         this.enemyTexture.position.y = 40;
+
+        const text = new PIXI.Text("RPS");
+        text.scale.x = 3;
+        text.scale.y = 3;
+        text.position.x = window.innerWidth/2 - 60;
+        text.position.y = window.innerHeight/2 - 40;
+        this.vp.addChild(text);
 
         this.room.listen("entities/:id", (change: DataChange) => {
             if (this.room.name === "battle") {
@@ -189,10 +211,17 @@ export class App extends PIXI.Application {
                         if (change.path.id === this.lastRoomId) {
                             console.log("Found current user");
                             this.player = change.value;
+
                             for (let i = 0; i < this.player.inventory.length; i++) {
                                 console.log("rendering current user's item");
                                 this.renderItem(this.player.inventory[i].stats, x + i * width, y, 1.2);
                             }
+                            const text = new PIXI.Text(this.player.health + " HP");
+                            text.scale.x = 5;
+                            text.scale.y = 5;
+                            text.position.x = x;
+                            text.position.y = y - 150;
+                            this.vp.addChild(text);
                         }
                     }
 
@@ -200,7 +229,7 @@ export class App extends PIXI.Application {
             }
         });
 
-        this.vp.addChild(this.playerFront, this.playerBack, this.enemyTexture, this.playerTexture);
+        this.vp.addChild(this.playerFront, this.enemyTexture, this.playerTexture);
 
 
         // Add vp to stage
@@ -210,6 +239,7 @@ export class App extends PIXI.Application {
 
     }
 
+    private items: Sprite[] = [];
     private renderItem(stats, x, y, scale) {
         let image;
 
@@ -225,7 +255,7 @@ export class App extends PIXI.Application {
         image.scale.x = scale;
         image.scale.y = scale;
         image.position.set(x, y);
-
+        this.items.push(image);
         this.vp.addChild(image);
     }
 
