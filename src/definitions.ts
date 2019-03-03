@@ -5,7 +5,7 @@ export const RIGHT: number = 8;
 export const NONE: number = 0;
 
 export enum MOVES {
-    ROCK,PAPER,SCISSORS
+    BAD,ROCK,PAPER,SCISSORS
 }
 
 export const COLOURS = {

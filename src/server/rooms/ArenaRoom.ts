@@ -25,8 +25,11 @@ export class ArenaRoom extends Room {
             this.state.createPlayer(client.sessionId, client.id);
         } else {
             const value = this.state.entities[found];
+            const newValue = new Player(value.x, value.y, value.name, value.id);
+            newValue.health = value.health;
+
             delete this.state.entities[found];
-            this.state.entities[client.sessionId] = value;
+            this.state.entities[client.sessionId] = newValue;
             console.log(this.state.entities[client.sessionId]);
         }
         console.log(`sessionId was ${found}`);
