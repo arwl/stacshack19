@@ -1,24 +1,44 @@
 import {Room, Client} from "colyseus";
 import {DOWN, LEFT, NONE, RIGHT, UP} from "../../definitions";
 import {Entity} from "./Entity";
+import {Player} from "./Player";
 import {State} from "./State";
 
 export class ArenaRoom extends Room {
     onInit() {
-        this.setState(new State());
+        this.setState(State.getCurrentState());
         this.setSimulationInterval(() => this.state.update());
     }
 
     onJoin(client: Client, options: any) {
-        this.state.createPlayer(client.sessionId);
+        console.log("adding player");
+        let found;
+        for (const sessionId in this.state.entities) {
+            const value = this.state.entities[sessionId];
+            if (value instanceof Player && value.id === client.id) {
+                console.log("found matching player");
+                found = sessionId;
+                break;
+            }
+        }
+        if (!found) {
+            this.state.createPlayer(client.sessionId, client.id);
+        } else {
+            const value = this.state.entities[found];
+            delete this.state.entities[found];
+            this.state.entities[client.sessionId] = value;
+            console.log(this.state.entities[client.sessionId]);
+        }
+        console.log(`sessionId was ${found}`);
+        console.log(`sessionId is ${client.sessionId}`);
     }
 
     onMessage(client: Client, message: any) {
         const entity = this.state.entities[client.sessionId];
 
-        // skip dead players
+        // // skip dead players
         if (!entity) {
-            console.log("DEAD PLAYER ACTING...");
+            // console.log(client.id);
             return;
         }
 
@@ -35,14 +55,14 @@ export class ArenaRoom extends Room {
                 direction.y -= 1;
             }
             if (data & LEFT) {
-                direction.x+=1;
+                direction.x += 1;
             }
             if (data & RIGHT) {
-                direction.x-=1;
+                direction.x -= 1;
             }
 
             if (data === NONE) {
-                entity.speed*=0.9;
+                entity.speed *= 0.9;
                 return;
             }
 

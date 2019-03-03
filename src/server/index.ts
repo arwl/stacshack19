@@ -14,6 +14,7 @@ import * as basicAuth from "express-basic-auth";
 import { monitor } from "@colyseus/monitor";
 
 import { ArenaRoom } from "./rooms/ArenaRoom";
+import {Battle} from "./rooms/Battle";
 
 export const port = Number(process.env.PORT || 8080);
 export const endpoint = "localhost";
@@ -24,6 +25,7 @@ const app = express();
 const gameServer = new colyseus.Server({ server: http.createServer(app) });
 
 gameServer.register("arena", ArenaRoom);
+gameServer.register("battle", Battle);
 
 if (process.env.NODE_ENV !== "production") {
     const webpackCompiler = webpack(webpackConfig({}));

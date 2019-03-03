@@ -1,4 +1,5 @@
 import * as nanoid from "nanoid";
+import {MOVES} from "../../definitions";
 import {Entity} from "./Entity";
 import {Item} from "./Item";
 import {HardRock} from "./items/HardRock";
@@ -12,12 +13,21 @@ const WORLD_SIZE = 4096 - DEFAULT_PLAYER_RADIUS;
 
 export class State {
 
+    private static currentState: State;
+
+    public static getCurrentState() {
+        if (!this.currentState) {
+            this.currentState = new State();
+        }
+        return this.currentState;
+    }
     width = WORLD_SIZE;
     height = WORLD_SIZE;
 
-    entities: Map<string, Entity> = new Map();
+    entities = {};
+    battles = {};
 
-    constructor() {
+    private constructor() {
         // create some item entities
         for (let i = 0; i < 100; i++) {
             this.createItem();
@@ -35,16 +45,16 @@ export class State {
         }
     };
 
-
     createItem() {
         this.entities[nanoid()] = State.potentialItems(Math.random() * WORLD_SIZE, Math.random() * WORLD_SIZE, Math.floor(Math.random() * 3.0));
     }
 
-    createPlayer(sessionId: string) {
+    createPlayer(sessionId: string, id: string) {
         this.entities[sessionId] = new Player(
             Math.random() * this.width,
             Math.random() * this.height,
-            "yeet"
+            "yeet",
+            id
         );
     }
 
@@ -76,8 +86,8 @@ export class State {
                         if (collideTestEntity instanceof Player) {
                             // const idToStartBattle = sessionId.localeCompare(collideSessionId) > 0 ? sessionId : collideSessionId;
                             if (collideTestEntity.inBattle && entity.inBattle) {
-                                collideTestEntity.inBattle = sessionId;
-                                entity.inBattle = collideSessionId;
+                                collideTestEntity.inBattle = entity.id;
+                                entity.inBattle = collideTestEntity.id;
                             }
 
                         } else if (collideTestEntity instanceof Item) {
@@ -115,4 +125,19 @@ export class State {
         // delete all dead entities
         deadEntities.forEach(entityId => delete this.entities[entityId]);
     }
+
+
+
+}
+
+export class BattleState {
+
+    player1: Player;
+    player2: Player;
+
+    player1Move:MOVES;
+    player2Move:MOVES;
+
+    winner: Player;
+    loser: Player;
 }

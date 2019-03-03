@@ -6,17 +6,18 @@ const DEFAULT_HEALTH = 20;
 const PLAYER_RADIUS = 20;
 
 export class Player extends Entity {
+    id: string;
     health: number;
     name: string;
     inventory: Item[];
     inBattle: string = "no";
 
-
-    constructor(x: number, y: number, name: string) {
+    constructor(x: number, y: number, name: string, id: string) {
         super(x, y, PLAYER_RADIUS, COLOURS.blue);
         this.name = name;
         this.health = DEFAULT_HEALTH;
         this.inventory = [];
+        this.id = id;
     }
 
     damage(hit: number, item: Item) {
@@ -36,7 +37,4 @@ export class Player extends Entity {
         }
     }
 
-    useitem() {
-
-    }
 }

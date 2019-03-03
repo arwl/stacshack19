@@ -37,7 +37,9 @@ module.exports = function (options) {
         },
         output: {
             filename: 'bundle.js',
-            path: path.resolve(__dirname, 'lib', 'public')
+            path: path.resolve(__dirname, 'lib', 'public'),
+            libraryTarget: 'var',
+            library: 'EntryPoint'
         }
     };
 }

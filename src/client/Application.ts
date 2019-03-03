@@ -40,19 +40,71 @@ export class App extends PIXI.Application {
         });
 
         this.initializeArena();
-        this.interpolation();
 
 
     }
 
     initializeArena(): any {
-        this.entities = {};
+        this.addSwitchListener();
         this.vp = new Viewport({
             screenWidth: window.innerWidth,
             screenHeight: window.innerHeight,
             worldWidth: MAP_SIZE,
             worldHeight: MAP_SIZE
         });
+        this.entities = {};
+        this.room.listen("entities/:id", (change: DataChange) => {
+            if (this.room.name === "arena") {
+                console.log(change.operation);
+                console.log(JSON.stringify(change, null, 4));
+                if (change.operation === "add") {
+
+                    if (change.value.inBattle) {
+                        // @ts-ignore
+                        const image: Sprite = new Sprite.from("resources/Sprites/fist.png");
+                        image.scale.x = .20;
+                        image.scale.y = .20;
+                        image.position.set(change.value.x, change.value.y);
+
+                        this.entities[change.path.id] = image;
+                        this.vp.addChild(image);
+
+                        if (change.path.id === this.room.sessionId) {
+                            console.log("following");
+                            this.currentPlayerEnt = image;
+                            this.vp.follow(this.currentPlayerEnt);
+                        }
+
+                        return;
+                    }
+
+                    const graphics = new PIXI.Graphics();
+                    const colour = change.value.colour;
+                    graphics.lineStyle(0);
+                    graphics.beginFill(colour);
+                    graphics.drawCircle(0, 0, change.value.radius);
+                    graphics.endFill();
+
+                    graphics.x = change.value.x;
+                    graphics.y = change.value.y;
+
+                    this.vp.addChild(graphics);
+                    this.entities[change.path.id] = graphics;
+                    this.state = this.overworld;
+
+                    if (change.path.id === this.room.sessionId) {
+                        this.currentPlayerEnt = graphics;
+                        this.vp.follow(this.currentPlayerEnt);
+                    }
+
+                } else if (change.operation === "remove") {
+                    this.vp.removeChild(this.entities[change.path.id]);
+                    this.entities[change.path.id].destroy();
+                    delete this.entities[change.path.id]
+                }
+            }
+        });
+
 
         // Show world boundaries
         const bounds = new PIXI.Graphics();
@@ -62,119 +114,51 @@ export class App extends PIXI.Application {
 
         // Add vp to stage
         this.stage.addChild(this.vp);
-        this.room.listen("entities/:id", (change: DataChange) => {
-            if (change.operation === "add") {
+        this.state = this.overworld;
+        this.interpolation();
 
-                if (change.value.inBattle) {
-                    // @ts-ignore
-                    const image = new Sprite.from("resources/Sprites/fist.png");
-                    image.position.set(change.value.x, change.value.y);
 
-                    console.log(JSON.stringify(change, null, 4));
-                    this.entities[change.path.id] = image;
-                    this.vp.addChild(image);
-
-                    if (change.path.id === this.room.sessionId) {
-                        console.log("following");
-                        this.currentPlayerEnt = image;
-                        this.vp.follow(this.currentPlayerEnt);
-                    }
-
-                    return;
-                }
-
-                const graphics = new PIXI.Graphics();
-                const colour = change.value.colour;
-                graphics.lineStyle(0);
-                graphics.beginFill(colour);
-                graphics.drawCircle(0, 0, change.value.radius);
-                graphics.endFill();
-
-                graphics.x = change.value.x;
-                graphics.y = change.value.y;
-
-                this.vp.addChild(graphics);
-                this.entities[change.path.id] = graphics;
-                this.state = this.overworld;
-
-                if (change.path.id === this.room.sessionId) {
-                    this.currentPlayerEnt = graphics;
-                    this.vp.follow(this.currentPlayerEnt);
-                }
-
-            } else if (change.operation === "remove") {
-                this.vp.removeChild(this.entities[change.path.id]);
-                this.entities[change.path.id].destroy();
-                delete this.entities[change.path.id]
-            }
-        });
-
-        // this.room.listen("entities/:id/inBattle", (change: DataChange) => {
-        //     if (change.value !== "no") {
-        //         if (this.room.name === "arena") {
-        //             this.room = this.client.join("battle");
-        //             // this.state = this.battle;
-        //         }
-        //     } else {
-        //         if (this.room.name === "battle") {
-        //             this.room = this.client.join("arena");
-        //             this.state = this.overworld;
-        //         }
-        //     }
-        // });
     }
 
 
-    // initializeBattle(): any {
-    //
-    //     // this.entities = {};
-    //     // // const colour = 0x87cefa;
-    //     // const colour = 0;
-    //     // const graphics = new PIXI.Sprite(resources.);
-    //     // graphics.lineStyle(0);
-    //     // graphics.beginFill(colour);
-    //     // graphics.drawCircle(0, 0, change.value.radius);
-    //     // graphics.endFill();
-    //     //
-    //     // graphics.x = change.value.x;
-    //     // graphics.y = change.value.y;
-    //     // this.vp.addChild(graphics);
-    //     //
-    //     // this.entities[change.path.id] = graphics;
-    //
-    //     this.vp = new Viewport({
-    //         screenWidth: window.innerWidth,
-    //         screenHeight: window.innerHeight,
-    //         worldWidth: window.innerWidth,
-    //         worldHeight: window.innerHeight
-    //     });
-    //
-    //     // Add vp to stage
-    //     this.stage.addChild(this.vp);
-    //
-    //     this.room.listen("player1", (change: DataChange) => {
-    //         if (!change.previousValue) {
-    //             if (change.value.inBattle !== this.room.sessionId) {
-    //                 this.playerBack = change.value;
-    //             } else {
-    //                 this.playerFront = change.value;
-    //             }
-    //
-    //         }
-    //     });
-    //     this.room.listen("player2", (change: DataChange) => {
-    //         if (!change.previousValue) {
-    //             if (change.value.inBattle !== this.room.sessionId) {
-    //                 this.playerBack = change.value;
-    //             } else {
-    //                 this.playerFront = change.value;
-    //             }
-    //         }
-    //     });
-    //
-    //
-    // }
+    initializeBattle(): any {
+        this.addSwitchListener();
+        this.entities = {};
+        this.vp = new Viewport({
+            screenWidth: window.innerWidth,
+            screenHeight: window.innerHeight,
+            worldWidth: window.innerWidth,
+            worldHeight: window.innerHeight
+        });
 
+        // Add vp to stage
+        this.stage.addChild(this.vp);
+        this.state = this.battle;
+        this.interpolation();
+
+    }
+
+
+    private addSwitchListener() {
+        this.room.listen("entities/:id/inBattle", (change: DataChange) => {
+            console.log(JSON.stringify(change, null, 4));
+            if (change.value !== "no") {
+                console.log("value is not no")
+                if (this.room.name === "arena") {
+                    this.room.leave();
+                    this.room = this.client.join("battle");
+                    this.initializeBattle();
+                }
+            } else {
+                console.log("value is no")
+                if (this.room.name === "battle") {
+                    this.room.leave();
+                    this.room = this.client.join("arena");
+                    this.initializeArena();
+                }
+            }
+        });
+    }
 
     interpolation() {
         this._interpolation = true;
@@ -192,7 +176,12 @@ export class App extends PIXI.Application {
         requestAnimationFrame(this.loop.bind(this));
 
         if (this.state) {
-            this.state();
+
+            try {
+                this.state();
+            } catch (e) {
+                console.log(e);
+            }
         }
 
         Keyboard.update();
@@ -221,14 +210,14 @@ export class App extends PIXI.Application {
 
     }
 
-    // battle() {
-    //     if (Keyboard.isKeyDown('KeyR'))
-    //         return this.sendKeyboard(MOVES.ROCK);
-    //     if (Keyboard.isKeyDown('KeyP'))
-    //         return this.sendKeyboard(MOVES.PAPER);
-    //     if (Keyboard.isKeyDown('KeyS'))
-    //         return this.sendKeyboard(MOVES.SCISSORS);
-    //
-    // }
+    battle() {
+        if (Keyboard.isKeyDown('KeyR'))
+            return this.sendKeyboard(MOVES.ROCK);
+        if (Keyboard.isKeyDown('KeyP'))
+            return this.sendKeyboard(MOVES.PAPER);
+        if (Keyboard.isKeyDown('KeyS'))
+            return this.sendKeyboard(MOVES.SCISSORS);
+
+    }
 
 }
