@@ -58,16 +58,10 @@ export class App extends PIXI.Application {
                 console.log(change.operation);
                 console.log(JSON.stringify(change, null, 4));
                 if (change.operation === "add") {
+                    let image: Sprite;
 
                     if (change.value.inBattle) {
-                        // @ts-ignore
-                        const image: Sprite = new Sprite.from("resources/Sprites/fist.png");
-                        image.scale.x = .20;
-                        image.scale.y = .20;
-                        image.position.set(change.value.x, change.value.y);
-
-                        this.entities[change.path.id] = image;
-                        this.vp.addChild(image);
+                        image = this.getImage("resources/Sprites/fist.png");
 
                         if (change.path.id === this.room.sessionId) {
                             console.log("following");
@@ -75,25 +69,26 @@ export class App extends PIXI.Application {
                             this.vp.follow(this.currentPlayerEnt);
                         }
 
-                        return;
+                    } else if (change.value.stats) {
+                        if (change.value.stats.rock) {
+                            image = this.getImage("resources/Sprites/rock.png");
+                        } else if (change.value.stats.scissors) {
+                            image = this.getImage("resources/Sprites/scissors.png");
+                        } else if (change.value.stats.paper) {
+                            image = this.getImage("resources/Sprites/paper.png");
+                        }
+
                     }
+                    image.scale.x = .20;
+                    image.scale.y = .20;
+                    image.position.set(change.value.x, change.value.y);
 
-                    const graphics = new PIXI.Graphics();
-                    const colour = change.value.colour;
-                    graphics.lineStyle(0);
-                    graphics.beginFill(colour);
-                    graphics.drawCircle(0, 0, change.value.radius);
-                    graphics.endFill();
-
-                    graphics.x = change.value.x;
-                    graphics.y = change.value.y;
-
-                    this.vp.addChild(graphics);
-                    this.entities[change.path.id] = graphics;
+                    this.entities[change.path.id] = image;
+                    this.vp.addChild(image);
                     this.state = this.overworld;
 
                     if (change.path.id === this.room.sessionId) {
-                        this.currentPlayerEnt = graphics;
+                        this.currentPlayerEnt = image;
                         this.vp.follow(this.currentPlayerEnt);
                     }
 
@@ -120,6 +115,11 @@ export class App extends PIXI.Application {
 
     }
 
+
+    private getImage(location: string) {
+        // @ts-ignore
+        return new Sprite.from(location);
+    }
 
     initializeBattle(): any {
         this.addSwitchListener();
